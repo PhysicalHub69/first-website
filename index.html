@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,6 +16,9 @@
       overflow-x: hidden;
       user-select: none;
     }
+    h1, h2, p, button, .subtle-link {
+      cursor: default;
+    }
     h1 {
       font-size: 2.8rem;
       color: #556677;
@@ -28,7 +31,6 @@
       font-weight: 400;
       margin-top: 0;
       margin-bottom: 1em;
-      cursor: default;
     }
     p {
       max-width: 600px;
@@ -36,7 +38,6 @@
       font-size: 1.1rem;
       color: #666;
       line-height: 1.5;
-      cursor: default;
     }
     .subtle-link {
       color: #557799;
@@ -86,6 +87,39 @@
       font-size: 1rem;
       font-family: 'Poppins', sans-serif;
     }
+    /* Game styles */
+    #gameContainer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      user-select: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #gameTitle {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    #gameCanvas {
+      image-rendering: pixelated;
+      background: #111;
+      border: 4px solid #0f0;
+      box-shadow: 0 0 20px #0f0;
+    }
+    #gameMsg {
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      min-height: 24px;
+    }
   </style>
 </head>
 <body>
@@ -98,111 +132,233 @@
 
   <div id="dialogue"></div>
 
-  <script>
-    const dialogue = document.getElementById('dialogue');
-    const fakeFile = document.getElementById('fakeFile');
-    const btn = document.getElementById('mysteriousBtn');
-    const input = document.getElementById('unlockInput');
+  <!-- Game container -->
+  <div id="gameContainer">
+    <div id="gameTitle">The Hidden Realm</div>
+    <canvas id="gameCanvas" width="320" height="320"></canvas>
+    <div id="gameMsg"></div>
+    <button id="exitGame" style="margin-top:20px; background:none; border:1px solid #0f0; color:#0f0; border-radius:6px; padding:8px 12px; cursor:pointer;">Exit Game</button>
+  </div>
 
-    // Generate random 5-digit code on page load
-    const secretCode = Math.floor(10000 + Math.random() * 90000).toString();
+<script>
+  const dialogue = document.getElementById('dialogue');
+  const fakeFile = document.getElementById('fakeFile');
+  const btn = document.getElementById('mysteriousBtn');
+  const input = document.getElementById('unlockInput');
+  const gameContainer = document.getElementById('gameContainer');
+  const gameCanvas = document.getElementById('gameCanvas');
+  const gameMsg = document.getElementById('gameMsg');
+  const exitGameBtn = document.getElementById('exitGame');
+  const ctx = gameCanvas.getContext('2d');
 
-    // Function to create and download text file with secret code
-    function downloadSecretFile() {
-      const content = `---SYSTEM LOG 0427---\n\nAccess Code: ${secretCode}\n\nIf you have this, maybe try pressing the button.`;
-      const blob = new Blob([content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = "system_log_0427.txt";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showDialogue("File downloaded. Keep that code safe.");
+  const secretCode = Math.floor(10000 + Math.random() * 90000).toString();
+  let clickCount = 0;
+  const phrases = [
+    "Nothing happens.",
+    "Maybe try something else?",
+    "This is definitely not a button.",
+    "You're still here...",
+    "Are you sure?",
+    "Maybe move your window around instead.",
+    "Okay, this is getting weird.",
+    "Don't say I didn't warn you.",
+    "Keep looking.",
+    "The quiet ones are the deadliest."
+  ];
+
+  fakeFile.addEventListener('click', () => {
+    downloadSecretFile();
+  });
+
+  btn.addEventListener('click', () => {
+    if (clickCount < phrases.length) {
+      showDialogue(phrases[clickCount]);
+      clickCount++;
+    } else {
+      input.style.display = 'inline-block';
+      input.focus();
+      showDialogue("If you have the code, enter it.");
     }
+  });
 
-    fakeFile.addEventListener('click', downloadSecretFile);
-
-    // Messages for button clicks
-    const phrases = [
-      "Nothing happens.",
-      "Maybe try something else?",
-      "This is definitely not a button.",
-      "You're still here...",
-      "Are you sure?",
-      "Maybe move your window around instead.",
-      "Okay, this is getting weird.",
-      "Don't say I didn't warn you.",
-      "Keep looking.",
-      "The quiet ones are the deadliest."
-    ];
-    let clickCount = 0;
-
-    btn.addEventListener('click', () => {
-      if (clickCount < phrases.length) {
-        showDialogue(phrases[clickCount]);
-        clickCount++;
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      if (input.value.trim() === secretCode) {
+        showDialogue("Access granted. Welcome to the hidden realm.");
+        input.style.display = 'none';
+        input.value = '';
+        clickCount = 0;
+        startGame();
       } else {
-        // Show input to enter code
-        input.style.display = 'inline-block';
-        input.focus();
-        showDialogue("If you have the code, enter it.");
+        showDialogue("Wrong code. Keep trying.");
+        input.value = '';
       }
-    });
+    }
+  });
 
-    // Check code input for unlock
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        if (input.value.trim() === secretCode) {
-          showDialogue("Access granted. Welcome to the hidden realm.");
-          // Reveal a secret message or do something sneaky here:
-          setTimeout(() => {
-            alert("You've unlocked the secret. Nice job.");
-          }, 500);
-          input.style.display = 'none';
-          input.value = '';
-          clickCount = 0;
-        } else {
-          showDialogue("Wrong code. Keep trying.");
-          input.value = '';
-        }
+  function showDialogue(text) {
+    dialogue.textContent = text;
+    dialogue.style.display = 'block';
+    setTimeout(() => {
+      dialogue.style.display = 'none';
+    }, 3500);
+  }
+
+  function downloadSecretFile() {
+    const content = `---SYSTEM LOG 0427---\n\nAccess Code: ${secretCode}\n\nIf you have this, maybe try pressing the button.`;
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "system_log_0427.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showDialogue("File downloaded. Keep that code safe.");
+  }
+
+  // Window move secret download (like before)
+  let moveCount = 0;
+  let lastX = window.screenX;
+  let lastY = window.screenY;
+
+  setInterval(() => {
+    const dx = Math.abs(window.screenX - lastX);
+    const dy = Math.abs(window.screenY - lastY);
+
+    if (dx > 10 || dy > 10) {
+      moveCount++;
+      if (moveCount === 3) {
+        downloadSecretFile();
+        moveCount = -9999;
       }
-    });
-
-    function showDialogue(text) {
-      dialogue.textContent = text;
-      dialogue.style.display = 'block';
-      setTimeout(() => {
-        dialogue.style.display = 'none';
-      }, 3500);
     }
 
-    // Window move secret download (like before)
-    let moveCount = 0;
-    let lastX = window.screenX;
-    let lastY = window.screenY;
+    lastX = window.screenX;
+    lastY = window.screenY;
+  }, 500);
 
-    setInterval(() => {
-      const dx = Math.abs(window.screenX - lastX);
-      const dy = Math.abs(window.screenY - lastY);
+  // Optional hint after 40 seconds
+  setTimeout(() => {
+    showDialogue("Sometimes you gotta move to find answers.");
+  }, 40000);
 
-      if (dx > 10 || dy > 10) {
-        moveCount++;
-        if (moveCount === 3) {
-          downloadSecretFile();
-          moveCount = -9999;
+  // Game stuff
+  const tileSize = 32;
+  const mapWidth = 10;
+  const mapHeight = 10;
+
+  // 0 = floor, 1 = wall, 2 = exit/secret
+  // Simple map layout
+  const map = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,2,1],
+    [1,0,1,1,0,1,1,0,0,1],
+    [1,0,1,0,0,0,1,0,1,1],
+    [1,0,1,0,1,0,1,0,0,1],
+    [1,0,0,0,1,0,0,0,1,1],
+    [1,1,1,0,1,1,1,0,0,1],
+    [1,0,0,0,0,0,1,0,1,1],
+    [1,0,1,1,1,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
+  ];
+
+  let player = { x: 1, y: 1 };
+
+  function drawMap() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+    for(let y=0; y < mapHeight; y++) {
+      for(let x=0; x < mapWidth; x++) {
+        switch(map[y][x]) {
+          case 1:
+            ctx.fillStyle = '#004400'; // wall = dark green
+            break;
+          case 0:
+            ctx.fillStyle = '#008800'; // floor = green
+            break;
+          case 2:
+            ctx.fillStyle = '#ffff00'; // exit = yellow
+            break;
         }
+        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
       }
+    }
+    // draw player
+    ctx.fillStyle = '#00ffff';
+    ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
+  }
 
-      lastX = window.screenX;
-      lastY = window.screenY;
-    }, 500);
+  function movePlayer(dx, dy) {
+    const newX = player.x + dx;
+    const newY = player.y + dy;
+    if(newX < 0 || newX >= mapWidth || newY < 0 || newY >= mapHeight) return;
+    if(map[newY][newX] === 1) return; // wall block
+    player.x = newX;
+    player.y = newY;
+    drawMap();
+    checkExit();
+  }
 
-    // Optional hint after 40 seconds
-    setTimeout(() => {
-      showDialogue("Sometimes you gotta move to find answers.");
-    }, 40000);
-  </script>
+  function checkExit() {
+    if(map[player.y][player.x] === 2) {
+      gameMsg.textContent = "You found the secret exit! Game beaten! 🎉";
+      setTimeout(() => {
+        alert("Congrats! You escaped the hidden realm.");
+        exitGame();
+      }, 500);
+    } else {
+      gameMsg.textContent = "";
+    }
+  }
+
+  function startGame() {
+    // hide main UI
+    document.querySelectorAll('h1, h2, p, button, #fakeFile, #unlockInput').forEach(el => el.style.display = 'none');
+    dialogue.style.display = 'none';
+    // show game UI
+    gameContainer.style.display = 'flex';
+    player = { x: 1, y: 1 };
+    drawMap();
+  }
+
+  function exitGame() {
+    // hide game UI
+    gameContainer.style.display = 'none';
+    // show main UI
+    document.querySelectorAll('h1, h2, p, button, #fakeFile').forEach(el => el.style.display = '');
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if(gameContainer.style.display === 'flex') {
+      switch(e.key.toLowerCase()) {
+        case 'w':
+        case 'arrowup':
+          movePlayer(0, -1);
+          break;
+        case 'a':
+        case 'arrowleft':
+          movePlayer(-1, 0);
+          break;
+        case 's':
+        case 'arrowdown':
+          movePlayer(0, 1);
+          break;
+        case 'd':
+        case 'arrowright':
+          movePlayer(1, 0);
+          break;
+        case 'escape':
+          exitGame();
+          break;
+      }
+      e.preventDefault();
+    }
+  });
+
+  exitGameBtn.addEventListener('click', exitGame);
+</script>
+
 </body>
 </html>
