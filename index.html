@@ -82,9 +82,14 @@
 
     <p>and its fun learning new things on here</p>
 
-    <button onclick="alert('dont mess with my first website stop clicking stuff')">
-      i made a button :D
-    </button>
+<button onclick="showNotification('Don’t mess with my first website, stop clicking stuff!')">i made a button :D</button>
+    
+
+
+    <div id="notification" style="display:none; position: fixed; top: 20px; right: 20px; background: #4a90e2; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(74, 144, 226, 0.6); font-weight: 600; z-index: 9999; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;">
+  Notifications.
+</div>
+
 
     <p style="color: #e9c46a; font-weight: 600; margin-top: 30px;">this website was programmed with</p>
 
@@ -96,5 +101,24 @@
       <h2>i kinda love making websites now</h2>
       <p>im happy :D</p>
     </div>
+    <script>
+  function showNotification(message) {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.display = 'block';
+    notification.style.opacity = '1';
+    notification.style.transform = 'translateY(0)';
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateY(-20px)';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 500);
+    }, 3000);
+  }
+</script>
+
   </body>
 </html>
