@@ -245,24 +245,22 @@
   }, 40000);
 
   // Game stuff
-  const tileSize = 320;
-  const mapWidth = 10;
-  const mapHeight = 10;
+  const mapWidth = 50;
+const mapHeight = 50;
+const map = [];
 
-  // 0 = floor, 1 = wall, 2 = exit/secret
-  // Simple map layout
-  const map = [
-    [1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,2,1],
-    [1,0,1,1,0,1,1,0,0,1],
-    [1,0,1,0,0,0,1,0,1,1],
-    [1,0,1,0,1,0,1,0,0,1],
-    [1,0,0,0,1,0,0,0,1,1],
-    [1,1,1,0,1,1,1,0,0,1],
-    [1,0,0,0,0,0,1,0,1,1],
-    [1,0,1,1,1,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1],
-  ];
+for(let y = 0; y < mapHeight; y++) {
+  const row = [];
+  for(let x = 0; x < mapWidth; x++) {
+    // Make border walls, floor inside
+    if(x === 0 || y === 0 || x === mapWidth - 1 || y === mapHeight -1) {
+      row.push(1); // wall
+    } else {
+      row.push(0); // floor
+    }
+  }
+  map.push(row);
+}
 
   let player = { x: 1, y: 1 };
 
