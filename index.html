@@ -77,6 +77,15 @@
       user-select: none;
       pointer-events: none;
     }
+    #unlockInput {
+      display: none;
+      margin-top: 20px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #557799;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -85,6 +94,7 @@
   <p>Sometimes the quietest places have the most to say.</p>
   <p class="subtle-link" id="fakeFile">system_log_0427.txt</p>
   <button id="mysteriousBtn">Do not press this</button>
+  <input type="text" id="unlockInput" placeholder="Enter secret code..." />
 
   <div id="dialogue"></div>
 
@@ -92,8 +102,29 @@
     const dialogue = document.getElementById('dialogue');
     const fakeFile = document.getElementById('fakeFile');
     const btn = document.getElementById('mysteriousBtn');
+    const input = document.getElementById('unlockInput');
 
-    let clickCount = 0;
+    // Generate random 5-digit code on page load
+    const secretCode = Math.floor(10000 + Math.random() * 90000).toString();
+
+    // Function to create and download text file with secret code
+    function downloadSecretFile() {
+      const content = `---SYSTEM LOG 0427---\n\nAccess Code: ${secretCode}\n\nIf you have this, maybe try pressing the button.`;
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "system_log_0427.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showDialogue("File downloaded. Keep that code safe.");
+    }
+
+    fakeFile.addEventListener('click', downloadSecretFile);
+
+    // Messages for button clicks
     const phrases = [
       "Nothing happens.",
       "Maybe try something else?",
@@ -106,14 +137,37 @@
       "Keep looking.",
       "The quiet ones are the deadliest."
     ];
+    let clickCount = 0;
 
     btn.addEventListener('click', () => {
-      showDialogue(phrases[clickCount] || "...");
-      clickCount = Math.min(clickCount + 1, phrases.length - 1);
+      if (clickCount < phrases.length) {
+        showDialogue(phrases[clickCount]);
+        clickCount++;
+      } else {
+        // Show input to enter code
+        input.style.display = 'inline-block';
+        input.focus();
+        showDialogue("If you have the code, enter it.");
+      }
     });
 
-    fakeFile.addEventListener('click', () => {
-      showDialogue("Just a file... or is it?");
+    // Check code input for unlock
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (input.value.trim() === secretCode) {
+          showDialogue("Access granted. Welcome to the hidden realm.");
+          // Reveal a secret message or do something sneaky here:
+          setTimeout(() => {
+            alert("You've unlocked the secret. Nice job.");
+          }, 500);
+          input.style.display = 'none';
+          input.value = '';
+          clickCount = 0;
+        } else {
+          showDialogue("Wrong code. Keep trying.");
+          input.value = '';
+        }
+      }
     });
 
     function showDialogue(text) {
@@ -121,28 +175,13 @@
       dialogue.style.display = 'block';
       setTimeout(() => {
         dialogue.style.display = 'none';
-      }, 3000);
+      }, 3500);
     }
 
-    // Sneaky window move unlock for download
+    // Window move secret download (like before)
     let moveCount = 0;
     let lastX = window.screenX;
     let lastY = window.screenY;
-
-    function downloadSecretFile() {
-      const blob = new Blob(
-        ["---SYSTEM LOG 0427---\n\nAccess Denied.\nUnauthorized user.\n\nTry moving your window around..."],
-        { type: "text/plain" }
-      );
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = "system_log_0427.txt";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
 
     setInterval(() => {
       const dx = Math.abs(window.screenX - lastX);
@@ -152,7 +191,7 @@
         moveCount++;
         if (moveCount === 3) {
           downloadSecretFile();
-          moveCount = -9999; // prevent repeat downloads
+          moveCount = -9999;
         }
       }
 
@@ -160,7 +199,7 @@
       lastY = window.screenY;
     }, 500);
 
-    // Optional: subtle hint after 40 seconds
+    // Optional hint after 40 seconds
     setTimeout(() => {
       showDialogue("Sometimes you gotta move to find answers.");
     }, 40000);
