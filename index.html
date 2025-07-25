@@ -3,142 +3,117 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>idk this is just a test site lol</title>
+  <title>just some random site, nothing to see here</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      color: #222;
+      background: linear-gradient(135deg, #d0e8f2, #f7fafc);
+      color: #333;
       margin: 0;
       padding: 40px 20px;
       text-align: center;
       overflow-x: hidden;
+      user-select: none;
     }
     h1 {
-      font-size: 3rem;
-      color: #e63946;
+      font-size: 2.8rem;
+      color: #556677;
+      font-weight: 500;
+      margin-bottom: 0.3em;
     }
     h2 {
-      font-size: 2rem;
-      color: #f4a261;
+      font-size: 1.8rem;
+      color: #778899;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 1em;
+      cursor: default;
     }
     p {
       max-width: 600px;
       margin: 1em auto;
       font-size: 1.1rem;
-      color: #555;
+      color: #666;
+      line-height: 1.5;
+      cursor: default;
+    }
+    .subtle-link {
+      color: #557799;
+      text-decoration: underline;
+      cursor: pointer;
+      user-select: text;
     }
     button {
-      background-color: #4a90e2;
+      background: none;
       border: none;
-      padding: 12px 28px;
-      border-radius: 25px;
-      color: white;
+      color: #557799;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      box-shadow: 0 4px 8px rgba(74, 144, 226, 0.4);
-      transition: all 0.3s ease;
+      padding: 0;
+      margin: 20px 0;
+      text-decoration: underline;
+      user-select: text;
+      transition: color 0.3s ease;
     }
     button:hover {
-      background-color: #357abd;
-      box-shadow: 0 6px 12px rgba(53, 122, 189, 0.6);
+      color: #335577;
     }
-
     #dialogue {
       position: fixed;
-      bottom: 30px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background: #000;
-      color: #0f0;
-      padding: 16px 22px;
-      border-radius: 10px;
-      font-weight: bold;
+      background: rgba(85, 119, 153, 0.15);
+      color: #334455;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-weight: 500;
       display: none;
       z-index: 9999;
-      font-family: monospace;
-      box-shadow: 0 0 10px #0f0;
-    }
-
-    .glitch {
-      animation: glitch 0.3s ease-in-out;
-    }
-
-    @keyframes glitch {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
-
-    #hidden-screen {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      color: #0f0;
-      font-family: monospace;
-      padding: 2em;
-      z-index: 999999;
-    }
-
-    .fake-file {
-      color: #aaa;
-      text-decoration: underline;
-      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 0 8px rgba(85, 119, 153, 0.3);
+      user-select: none;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <h1>you probably shouldn’t be here</h1>
-  <h2 onclick="triggerSecret()">like seriously, go touch grass</h2>
-  <p id="secret-text">tf you even doing.</p>
-  <p class="fake-file" onclick="downloadFakeFile()">open_hidden-log.txt</p>
-
-  <button id="clickMe">do NOT press this</button>
+  <h1>Welcome to... whatever this is</h1>
+  <h2>Maybe you’re curious, maybe not</h2>
+  <p>Sometimes the quietest places have the most to say.</p>
+  <p class="subtle-link" id="fakeFile">system_log_0427.txt</p>
+  <button id="mysteriousBtn">Do not press this</button>
 
   <div id="dialogue"></div>
-  <div id="hidden-screen">INITIALIZING BACKDOOR ACCESS...<br>grabbing system paths...<br>injecting...</div>
 
   <script>
-    let clicked = 0;
-    const btn = document.getElementById('clickMe');
     const dialogue = document.getElementById('dialogue');
-    const secretText = document.getElementById('secret-text');
-    const hiddenScreen = document.getElementById('hidden-screen');
+    const fakeFile = document.getElementById('fakeFile');
+    const btn = document.getElementById('mysteriousBtn');
 
-    const narratorLines = [
-      "You again?",
-      "This button does NOTHING.",
-      "Seriously. You’re wasting your time.",
-      "Fine. Keep going. See what happens.",
-      "No no no. Don't.",
-      "WHY are you still here?!",
-      "You've triggered something.",
-      "it's watching now.",
-      "you can’t undo it.",
-      "good luck."
+    let clickCount = 0;
+    const phrases = [
+      "Nothing happens.",
+      "Maybe try something else?",
+      "This is definitely not a button.",
+      "You're still here...",
+      "Are you sure?",
+      "Maybe move your window around instead.",
+      "Okay, this is getting weird.",
+      "Don't say I didn't warn you.",
+      "Keep looking.",
+      "The quiet ones are the deadliest."
     ];
 
     btn.addEventListener('click', () => {
-      btn.classList.add('glitch');
-      setTimeout(() => btn.classList.remove('glitch'), 300);
+      showDialogue(phrases[clickCount] || "...");
+      clickCount = Math.min(clickCount + 1, phrases.length - 1);
+    });
 
-      if (clicked < narratorLines.length) {
-        showDialogue(narratorLines[clicked]);
-      }
-      if (clicked === narratorLines.length - 1) {
-        document.body.style.background = "#000";
-        secretText.textContent = "you went too far.";
-        secretText.style.color = "#0f0";
-        document.body.style.color = "#0f0";
-      }
-      clicked++;
+    fakeFile.addEventListener('click', () => {
+      showDialogue("Just a file... or is it?");
     });
 
     function showDialogue(text) {
@@ -149,33 +124,46 @@
       }, 3000);
     }
 
-    function triggerSecret() {
-      showDialogue("you found that?");
-      setTimeout(() => {
-        hiddenScreen.style.display = 'block';
-        setTimeout(() => {
-          hiddenScreen.style.display = 'none';
-        }, 5000);
-      }, 1500);
+    // Sneaky window move unlock for download
+    let moveCount = 0;
+    let lastX = window.screenX;
+    let lastY = window.screenY;
+
+    function downloadSecretFile() {
+      const blob = new Blob(
+        ["---SYSTEM LOG 0427---\n\nAccess Denied.\nUnauthorized user.\n\nTry moving your window around..."],
+        { type: "text/plain" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "system_log_0427.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
-    function downloadFakeFile() {
-      showDialogue("downloading log...");
-      setTimeout(() => {
-        const blob = new Blob(["ERROR: SYSTEM BREACH\nFile integrity compromised.\nYOU SHOULD NOT BE HERE."], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "hidden-log.txt";
-        a.click();
-        URL.revokeObjectURL(url);
-      }, 2000);
-    }
+    setInterval(() => {
+      const dx = Math.abs(window.screenX - lastX);
+      const dy = Math.abs(window.screenY - lastY);
 
-    // Timed jumpscare easter egg
+      if (dx > 10 || dy > 10) {
+        moveCount++;
+        if (moveCount === 3) {
+          downloadSecretFile();
+          moveCount = -9999; // prevent repeat downloads
+        }
+      }
+
+      lastX = window.screenX;
+      lastY = window.screenY;
+    }, 500);
+
+    // Optional: subtle hint after 40 seconds
     setTimeout(() => {
-      showDialogue("...still here?");
-    }, 60000); // after 1 minute
+      showDialogue("Sometimes you gotta move to find answers.");
+    }, 40000);
   </script>
 </body>
 </html>
